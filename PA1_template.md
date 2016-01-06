@@ -11,8 +11,7 @@ output:
 - Loading the dataset into R
 
 ```r
-library(plyr)
-library(lattice)
+library(ggplot2)
 
 if(!file.exists("activity.zip")) {
     url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
@@ -29,8 +28,9 @@ data <- read.csv(unz("activity.zip", "activity.csv"),
 
 ```r
 steps <- aggregate(steps~date, data, sum)
-histogram(steps$steps, xlab = "Steps", breaks = 10, 
-          main = "The total number of steps taken per day")
+ggplot(steps, aes(steps)) + 
+  geom_histogram(bins = 10, color = "white", fill = "#FF9999", alpha = 0.8) + 
+  labs(title = "The total number of steps taken per day", x = "Steps")
 ```
 
 ![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2-1.png) 
@@ -50,9 +50,9 @@ options(scipen=999)
 
 ```r
 avg.steps <- aggregate(steps~interval, data, mean)
-xyplot(steps ~ interval, data = avg.steps, type = "l", 
-       xlab = "5-minute interval identifiers", ylab = "Steps", 
-       main = "Average number of steps across all days")
+ggplot(avg.steps, aes(interval, steps)) + 
+  geom_line(color = "#FF9999") +
+  labs(title = "Average number of steps across all days", x = "5-minute interval identifiers", y = "Steps")
 ```
 
 ![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4-1.png) 
@@ -84,8 +84,9 @@ data2 <- data
 data2[na.index, 'steps'] <- fill.steps
 steps2 <- aggregate(steps~date, data2, sum)
 
-histogram(steps2$steps, xlab = "Steps", breaks = 10, 
-          main = "The total number of steps taken per day \n (new dataset filled missing data)")
+ggplot(steps2, aes(steps)) + 
+  geom_histogram(bins = 10, color = "white", fill = "#FF9999", alpha = 0.8) + 
+  labs(title = "The total number of steps taken per day \n (new dataset filled missing data)", x = "Steps")
 ```
 
 ![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7-1.png) 
@@ -111,8 +112,11 @@ But, the median number of steps taken per day are slightly different (before fil
 data2['day'] = factor(ifelse(as.POSIXlt(data2$date)$wday %in% c(0,6), "weekend", "weekday"))
 
 avg2.steps <- aggregate(steps~interval + day, data2, mean)
-xyplot(steps ~ interval | day, data = avg2.steps, type='l', layout = c(1, 2), 
-       xlab = "Interval", ylab = "Number of steps", main = "Average steps by day")
+
+ggplot(avg2.steps, aes(interval, steps)) + 
+  geom_line(color = "#FF9999") +
+  labs(title = "Average steps by day", x = "5-minute interval identifiers", y = "Steps") +
+  facet_grid(day ~ .)
 ```
 
 ![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8-1.png) 
